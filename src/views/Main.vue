@@ -1,6 +1,10 @@
 <template>
+  <template v-if="is_canvas_loaded">
+    <Loader :gltf_src="SPIDER_MODEL_SRC" @load="onSpiderModelLoad" />
+    <SceneObject :show_gui="true" @load="obj => canvas3D.addToScene(obj)" />
+  </template>
+
   <Joystick @keyup="onKeyUp" @keydown="onKeyDown" />
-  <Loader :gltf_src="SPIDER_MODEL_SRC" @load="onSpiderModelLoad" />
 </template>
 
 <script setup>
@@ -8,6 +12,7 @@
 // Import
 // ==============
 import { 
+  ref,
   onMounted,
   onUnmounted
 } from "vue";
@@ -18,16 +23,15 @@ import {
   SPIDER_MODEL_SRC,
 } from "../utils/globals.mjs";
 
-import Canvas3D from "../utils/Canvas3D.mjs";
-import Gui from "../utils/Gui.mjs";
+import Canvas3D    from "../utils/Canvas3D.mjs";
 
-import Loader   from "../components/Loader.vue";
-import Joystick from "../components/Joystick.vue";
+import Loader      from "@/components/Loader.vue";
+import Joystick    from "@/components/Joystick.vue";
+import SceneObject from "@/components/SceneObject.vue";
 
 // ==============
 // Variables
 // ==============
-let gui                      = undefined;
 let canvas3D                 = undefined;
 let mixer                    = undefined;
 let animation_frame          = undefined;
@@ -36,6 +40,7 @@ let spider_default_animation = undefined;
 let spider_walk_animation    = undefined;
 let clock                    = new THREE.Clock();
 
+const is_canvas_loaded = ref( false );
 
 // ==============
 // Functions
@@ -75,7 +80,6 @@ function onKeyDown(direction) {
   }
 }
 
-
 function initLoop() {
   mixer && mixer.update(clock.getDelta());
   canvas3D.update();
@@ -90,13 +94,12 @@ onMounted(() => {
   canvas3D.init();
   canvas3D.addPlane();
   canvas3D.addDirectionalLight();
-  gui = new Gui();
+  is_canvas_loaded.value = true;
   initLoop();
 });
 
 onUnmounted(() => {
   cancelAnimationFrame(animation_frame);
-  gui.unmount();
   canvas3D.unmount();
 });
 
