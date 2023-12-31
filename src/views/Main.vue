@@ -1,7 +1,7 @@
 <template>
   <template v-if="is_canvas_loaded">
-    <Loader :gltf_src="SPIDER_MODEL_SRC" @load="onSpiderModelLoad" />
-    <SceneObject :show_gui="true" @load="obj => canvas3D.addToScene(obj)" />
+    <ModelLoader :gltf_src="SPIDER_MODEL_SRC" @load="onSpiderModelLoad" />
+    <ModelLoader :gltf_src="BOOK_MODEL_SRC" @load="onBookModelLoad" />
   </template>
 
   <Joystick @keyup="onKeyUp" @keydown="onKeyDown" />
@@ -20,14 +20,15 @@ import {
 import * as THREE from "three";
 import {
   SPEED,
+  BOOK_MODEL_SRC,
   SPIDER_MODEL_SRC,
 } from "../utils/globals.mjs";
 
 import Canvas3D    from "../utils/Canvas3D.mjs";
 
-import Loader      from "@/components/Loader.vue";
+import ModelLoader from "@/components/ModelLoader.vue";
 import Joystick    from "@/components/Joystick.vue";
-import SceneObject from "@/components/SceneObject.vue";
+// import SceneObject from "@/components/SceneObject.vue";
 
 // ==============
 // Variables
@@ -35,7 +36,7 @@ import SceneObject from "@/components/SceneObject.vue";
 let canvas3D                 = undefined;
 let mixer                    = undefined;
 let animation_frame          = undefined;
-let model                    = undefined;
+let spider_model                    = undefined;
 let spider_default_animation = undefined;
 let spider_walk_animation    = undefined;
 let clock                    = new THREE.Clock();
@@ -45,15 +46,21 @@ const is_canvas_loaded = ref( false );
 // ==============
 // Functions
 // ==============
+function onBookModelLoad(ev) {
+  const _model = ev.scene;
+  _model.position.y = -0.6;
+  _model.position.z = -1.3;
+  canvas3D.addToScene( _model );
+}
+
 function onSpiderModelLoad(ev) {
-  model = ev.scene;
-  model.position.y = -0.5;
-  model.position.z = -0.5;
-  mixer = new THREE.AnimationMixer(model);
+  spider_model = ev.scene;
+  spider_model.position.y = -0.5;
+  mixer = new THREE.AnimationMixer(spider_model);
   spider_walk_animation = mixer.clipAction(ev.animations.find((a) => a.name == "spider.walk"));
   spider_default_animation = mixer.clipAction(ev.animations.find((a) => a.name == "spider.default"));
   spider_default_animation.play();
-  canvas3D.addToScene(model);
+  canvas3D.addToScene(spider_model);
 }
 
 function onKeyUp() {
@@ -66,22 +73,25 @@ function onKeyDown(direction) {
   spider_default_animation.stop();
   switch (direction) {
     case "up":
-      model.position.z += SPEED;
+      spider_model.position.z += SPEED;
       break;
     case "down":
-      model.position.z -= SPEED;
+      spider_model.position.z -= SPEED;
       break;
     case "left":
-      model.position.x += SPEED;
+      spider_model.position.x += SPEED;
       break;
     case "right":
-      model.position.x -= SPEED;
+      spider_model.position.x -= SPEED;
       break;
   }
 }
 
 function initLoop() {
   mixer && mixer.update(clock.getDelta());
+  if ( spider_model ) {
+    canvas3D.lookAt(spider_model.position);
+  }
   canvas3D.update();
   animation_frame = window.requestAnimationFrame(initLoop);
 }

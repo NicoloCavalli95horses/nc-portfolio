@@ -101,7 +101,7 @@ export default class Canvas3D {
   addPlane() {
     const material = new THREE.MeshStandardMaterial();
     material.roughness = 0.4;
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 7), material);
     plane.rotation.x = -Math.PI * 0.5;
     plane.position.y = -0.5;
     this.addToScene(plane);
@@ -113,7 +113,9 @@ export default class Canvas3D {
     this.renderer.render(this.scene, this.camera);
     this.controls.update();
   }
-
+  lookAt( object ) {
+    this.camera.lookAt( object );
+  }
   unmount() {
     // Remove the resize event listener
     window.removeEventListener("resize", this.onResize);
