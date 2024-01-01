@@ -1,7 +1,8 @@
 <template>
   <template v-if="is_canvas_loaded">
+    <SceneBasicObject :texture_src="WOOD_TEXTURE_SRC" @load="(obj) => canvas3D.addToScene(obj)" />
     <ModelLoader :gltf_src="SPIDER_MODEL_SRC" @load="onSpiderModelLoad" />
-    <ModelLoader :gltf_src="BOOK_MODEL_SRC" @load="onBookModelLoad" />
+    <ModelLoader :show_gui="true" :gltf_src="BOOK_MODEL_SRC" @load="onBookModelLoad" />
   </template>
 
   <Joystick @keyup="onKeyUp" @keydown="onKeyDown" />
@@ -22,13 +23,14 @@ import {
   SPEED,
   BOOK_MODEL_SRC,
   SPIDER_MODEL_SRC,
+  WOOD_TEXTURE_SRC,
 } from "../utils/globals.mjs";
 
 import Canvas3D    from "../utils/Canvas3D.mjs";
 
-import ModelLoader from "@/components/ModelLoader.vue";
-import Joystick    from "@/components/Joystick.vue";
-// import SceneObject from "@/components/SceneObject.vue";
+import ModelLoader      from "@/components/ModelLoader.vue";
+import Joystick         from "@/components/Joystick.vue";
+import SceneBasicObject from "@/components/SceneBasicObject.vue";
 
 // ==============
 // Variables
@@ -36,7 +38,7 @@ import Joystick    from "@/components/Joystick.vue";
 let canvas3D                 = undefined;
 let mixer                    = undefined;
 let animation_frame          = undefined;
-let spider_model                    = undefined;
+let spider_model             = undefined;
 let spider_default_animation = undefined;
 let spider_walk_animation    = undefined;
 let clock                    = new THREE.Clock();
@@ -47,10 +49,21 @@ const is_canvas_loaded = ref( false );
 // Functions
 // ==============
 function onBookModelLoad(ev) {
-  const _model = ev.scene;
-  _model.position.y = -0.6;
-  _model.position.z = -1.3;
-  canvas3D.addToScene( _model );
+  const book_model = ev.scene;
+  book_model.position.y = 0.3;
+  book_model.position.z = 2.7;
+  book_model.rotation.x = 1.6;
+  book_model.rotation.z = 1.5;
+  book_model.scale.y = 5;
+  book_model.scale.x = 10;
+  book_model.scale.z = 10;
+
+  for (let i=0; i<20; i++) {
+    const b = book_model.clone();
+    b.position.x += (i/4);
+    canvas3D.addToScene( b );
+  }
+  canvas3D.addToScene( book_model );
 }
 
 function onSpiderModelLoad(ev) {
@@ -102,7 +115,6 @@ function initLoop() {
 onMounted(() => {
   canvas3D = new Canvas3D();
   canvas3D.init();
-  canvas3D.addPlane();
   canvas3D.addDirectionalLight();
   is_canvas_loaded.value = true;
   initLoop();
