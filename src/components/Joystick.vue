@@ -1,14 +1,6 @@
 <template>
-  <div class="keys">
-    <div />
-    <div class="key" :class="{ 'active' : pointer_down == 'up' }" @pointerup="onKeyup" @pointerdown="move('up')">↑</div>
-    <div />
-    <div class="key" :class="{ 'active' : pointer_down == 'left' }" @pointerup="onKeyup" @pointerdown="move('left')">←</div>
-    <div />
-    <div class="key" :class="{ 'active' : pointer_down == 'right' }" @pointerup="onKeyup" @pointerdown="move('right')">→</div>
-    <div />
-    <div class="key" :class="{ 'active' : pointer_down == 'down' }" @pointerup="onKeyup" @pointerdown="move('down')">↓</div>
-    <div />
+  <div ref="wrapper_ref" class="cursor-wrapper" @pointerdown="pointer_down = true">
+    <div class="cursor" :class="{ 'active' : pointer_down }" :style="{ 'top': `${ norm.y*100 }%`,'left': `${ norm.x*100 }%`}" />
   </div>
 </template>
 
@@ -17,15 +9,17 @@
 // Import
 // ==============
 import {
+  ref,
   onMounted,
   onUnmounted,
-  ref,
+  reactive,
 } from 'vue';
+import { mapValue } from '../utils/utils.mjs';
 
 
 const emit = defineEmits([
-  'keyup',
-  'keydown',
+  'move',
+  'stop',
 ]);
 
 
@@ -33,48 +27,55 @@ const emit = defineEmits([
 // Consts
 // ==============
 const pointer_down = ref( false );
+const wrapper_ref  = ref( undefined );
+const rect         = ref( undefined );
+const norm         = reactive({ x: 0.5, y: 0.5 });
+
 let timeout = undefined;
 
 
 // ==============
 // Functions
 // ==============
-function onKeyup() {
+function onPointerUp() {
   clearTimeout( timeout );
-  timeout = undefined;
-  pointer_down.value = undefined;
-  emit('keyup');
+  pointer_down.value = false;
+  norm.x = 0.5;
+  norm.y = 0.5;
+  emit('move', norm);
+  emit('stop');
 }
 
-function move(direction) {
-  pointer_down.value = direction;
-  switch (direction) {
-    case 'up':
-      emit('keydown', 'up');
-      break;
-    case 'down':
-      emit('keydown', 'down');
-      break;
-    case 'left':
-      emit('keydown', 'left');
-      break;
-    case 'right':
-      emit('keydown', 'right');
-      break;
-  }
-  timeout = setTimeout(() => move(direction), 100);
+function onWindowPointerMove(ev){
+  if ( !pointer_down.value ) { return; }
+  clearTimeout( timeout );
+  const x = ev.clientX;
+  const y = ev.clientY;
+  norm.x = mapValue(x, rect.value.x, rect.value.x + rect.value.width, 0, 1);
+  norm.y = mapValue(y, rect.value.y, rect.value.y + rect.value.height, 0, 1);
+  emit('move', norm );
+  timeout = setTimeout( () => onWindowPointerMove(ev), 10);
 }
-
+function getBoundingClientRect() {
+  rect.value = wrapper_ref.value.getBoundingClientRect();
+}
 
 // ==============
 // Life cycle
 // ==============
 onMounted(() => {
-  window.addEventListener("keyup", onKeyup);
+  getBoundingClientRect();
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("touchend", onPointerUp);
+  window.addEventListener("pointermove", onWindowPointerMove);
+  window.addEventListener("resize", getBoundingClientRect);
 })
 
 onUnmounted(() => {
-  window.removeEventListener("keyup", onKeyup);
+  window.removeEventListener("pointerup", onPointerUp);
+  window.removeEventListener("touchend", onPointerUp);
+  window.removeEventListener("pointermove", onWindowPointerMove);
+  window.removeEventListener("resize", getBoundingClientRect);
   clearTimeout( timeout );
   timeout = undefined;
 })
@@ -82,29 +83,32 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.keys {
+$base-color: #bbb;
+$active-color: var(--secondary);
+.cursor-wrapper {
   position: fixed;
-  bottom: 22px;
-  right: 22px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  .key {
-    display: grid;
-    place-content: center;
-    width: 46px;
-    height: 46px;
+  bottom: 32px;
+  right: 32px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 1px solid $base-color;
+  cursor: pointer;
+  touch-action: none;
+  .cursor {
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    border: 1px solid #eee;
-    transition-duration: 400ms;
-    color: #eee;
+    position: absolute;
+    transform: translate(-50%, -50%) scale(1);
+    background-color: $base-color;
+    box-shadow: 3px 2px 12px var(--black);
+    transition: background-color;
+    transition-duration: var(--transition-slow);
     &.active {
-      background-color: #eee;
-      color: #222;
-      transition-duration: 400ms;
-      transform: scale(0.9);
+      transition-duration: var(--transition-slow);
+      background-color: $active-color;
     }
   }
-}</style>
+}
+</style>

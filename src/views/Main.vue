@@ -6,7 +6,7 @@
     <ModelLoader :gltf_src="SRC.models.pc" @load="onPcModelLoad" />
   </template>
   
-  <Joystick @keyup="onKeyUp" @keydown="onKeyDown" />
+  <Joystick @stop="onStopAnimation" @move="onMoveAnimation" />
   <LaptopScreen v-if="is_pc_model_loaded" />
 </template>
 
@@ -23,8 +23,8 @@ import {
 import * as THREE from "three";
 import {
   SRC,
-  SPEED,
-} from "../utils/globals.mjs";
+  // checkDOMUpdate,
+} from "../utils/utils.mjs";
 
 import Canvas3D    from "../utils/Canvas3D.mjs";
 
@@ -51,16 +51,20 @@ const is_pc_model_loaded = ref( false );
 // Functions
 // ==============
 function onPcModelLoad(ev){
+  const DOM_CLASS = 'pc_screen';
   const pc_model = ev.scene;
   pc_model.position.x = 0.7;
   pc_model.position.y = -1.15;
   pc_model.position.z = 3.2;
-  const updated_pc_model = canvas3D.addHTMLOverlay( pc_model, 'pc_screen' );
+  const updated_pc_model = canvas3D.addHTMLOverlay( pc_model, DOM_CLASS, {x:-1,y:2.3,z:0} );
   canvas3D.addToScene( updated_pc_model );
-  setTimeout(() => {
-    is_pc_model_loaded.value = true;
-  }, 1000)
+  // add html over the model
+  // checkDOMUpdate({
+  //   class_name:`.${DOM_CLASS}`,
+  //   callback: (val) => is_pc_model_loaded.value = val
+  // });
 }
+
 
 function onBookModelLoad(ev) {
   const book_model = ev.scene;
@@ -91,28 +95,16 @@ function onSpiderModelLoad(ev) {
   canvas3D.addToScene(spider_model);
 }
 
-function onKeyUp() {
+function onStopAnimation() {
   spider_walk_animation.stop();
   spider_default_animation.play();
 }
 
-function onKeyDown(direction) {
+function onMoveAnimation(dir) {
   spider_walk_animation.play();
   spider_default_animation.stop();
-  switch (direction) {
-    case "up":
-      spider_model.position.z += SPEED;
-      break;
-    case "down":
-      spider_model.position.z -= SPEED;
-      break;
-    case "left":
-      spider_model.position.x += SPEED;
-      break;
-    case "right":
-      spider_model.position.x -= SPEED;
-      break;
-  }
+  spider_model.position.x -= (dir.x - 0.5) * 0.01;
+  spider_model.position.z -= (dir.y - 0.5) * 0.01;
 }
 
 function initLoop() {
@@ -141,3 +133,4 @@ onUnmounted(() => {
 });
 
 </script>
+../utils/utils.mjs

@@ -81,11 +81,11 @@ export default class Canvas3D {
   initScene() {
     this.scene = new THREE.Scene();
   }
-  addHTMLOverlay(mesh, class_name) {
+  addHTMLOverlay(mesh, class_name, position) {
     const el = document.createElement('div');
     el.className = class_name;
     const objectCSS = new CSS2DObject(el);
-    objectCSS.position.set(0, 1, 0);
+    objectCSS.position.set(position.x, position.y, position.z);
     mesh.add(objectCSS);
     return mesh;
   }
