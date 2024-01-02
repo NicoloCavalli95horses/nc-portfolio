@@ -3,6 +3,8 @@
 // ==============
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer";
+import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 // ==============
 // Class
@@ -19,6 +21,7 @@ export default class Canvas3D {
     this.aspect_ratio = this.width / this.height;
     this.controls = undefined;
     this.fov = 75;
+    this.css2DRenderer = undefined;
   }
   /**
    * Initialize canvas object
@@ -29,6 +32,7 @@ export default class Canvas3D {
     this.initScene();
     this.initControls();
     this.createRenderer();
+    this.initCSSRenderer();
     this.handleWindowResize();
   }
   handleWindowResize() {
@@ -48,11 +52,14 @@ export default class Canvas3D {
       this.camera.aspect = this.aspect_ratio;
       this.camera.updateProjectionMatrix();
     }
-
     // update renderer
     if (this.renderer) {
       this.renderer.setSize(this.width, this.height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+    // update css2Drenderer
+    if ( this.css2DRenderer ){
+      this.css2DRenderer.setSize(this.width, this.height);
     }
   };
   initCamera() {
@@ -61,8 +68,26 @@ export default class Canvas3D {
     this.camera.position.y = 2;
     this.camera.position.x = 0;
   }
+  initCSSRenderer() {
+    this.css2DRenderer = new CSS2DRenderer();
+    this.css2DRenderer.setSize(window.innerWidth, window.innerHeight);
+    this.css2DRenderer.domElement.style.position = 'absolute';
+    this.css2DRenderer.domElement.style.top = '0px';
+    this.css2DRenderer.domElement.style.pointerEvents = 'none';
+    this.css2DRenderer.domElement.className = 'overlay';
+    const app = document.querySelector('#app');
+    app.appendChild(this.css2DRenderer.domElement);
+  }
   initScene() {
     this.scene = new THREE.Scene();
+  }
+  addHTMLOverlay(mesh, class_name) {
+    const el = document.createElement('div');
+    el.className = class_name;
+    const objectCSS = new CSS2DObject(el);
+    objectCSS.position.set(0, 1, 0);
+    mesh.add(objectCSS);
+    return mesh;
   }
   initControls() {
     this.controls = new OrbitControls(this.camera, this.canvas_element);
@@ -98,19 +123,12 @@ export default class Canvas3D {
     directionalLight.castShadow = true;
     this.addToScene(directionalLight);
   }
-  addPlane() {
-    const material = new THREE.MeshStandardMaterial();
-    material.roughness = 0.4;
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 7), material);
-    plane.rotation.x = -Math.PI * 0.5;
-    plane.position.y = -0.5;
-    this.addToScene(plane);
-  }
   /**
    * This function is called in the main loop
    */
   update() {
     this.renderer.render(this.scene, this.camera);
+    this.css2DRenderer.render(this.scene, this.camera);
     this.controls.update();
   }
   lookAt( object ) {

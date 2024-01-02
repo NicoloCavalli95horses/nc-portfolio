@@ -1,8 +1,18 @@
 // ===================
 // Global variables
 // ===================
+const BASE_TEXTURE = "/textures/";
+const BASE_MODEL = "/models/";
+
 export const FOV = 75;
 export const SPEED = 0.03;
-export const SPIDER_MODEL_SRC = "/models/spider.glb";
-export const BOOK_MODEL_SRC = "/models/book.glb";
-export const WOOD_TEXTURE_SRC = "/textures/wood.jpg";
+export const SRC = Object.freeze({
+    textures: {
+      wood: `${BASE_TEXTURE}wood.jpg`,
+    },
+    models: {
+      pc: `${BASE_MODEL}pc.glb`,
+      book: `${BASE_MODEL}book.glb`,
+      spider: `${BASE_MODEL}spider.glb`,
+    }
+})

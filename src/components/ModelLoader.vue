@@ -47,13 +47,12 @@ function onLoadAsset(e) {
 }
 
 function handleDebugUI( model ) {
-  gui.add(model.position, 'x').min(0).max(3).step(0.1).name('position x');
-  gui.add(model.position, 'y').min(0).max(3).step(0.1).name('position y');
-  gui.add(model.position, 'z').min(0).max(3).step(0.1).name('position z');
-
-  gui.add(model.rotation, 'x').min(0).max(3).step(0.1).name('rotation x');
-  gui.add(model.rotation, 'y').min(0).max(3).step(0.1).name('rotation y');
-  gui.add(model.rotation, 'z').min(0).max(3).step(0.1).name('rotation z');
+  gui.add(model.position, 'x').min(-5).max(5).step(0.05).name('position x');
+  gui.add(model.position, 'y').min(-5).max(5).step(0.05).name('position y');
+  gui.add(model.position, 'z').min(-5).max(5).step(0.05).name('position z');
+  gui.add(model.rotation, 'x').min(-5).max(5).step(0.05).name('rotation x');
+  gui.add(model.rotation, 'y').min(-5).max(5).step(0.05).name('rotation y');
+  gui.add(model.rotation, 'z').min(-5).max(5).step(0.05).name('rotation z');
 }
 
 // ==============

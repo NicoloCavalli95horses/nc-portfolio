@@ -1,11 +1,13 @@
 <template>
   <template v-if="is_canvas_loaded">
-    <SceneBasicObject :texture_src="WOOD_TEXTURE_SRC" @load="(obj) => canvas3D.addToScene(obj)" />
-    <ModelLoader :gltf_src="SPIDER_MODEL_SRC" @load="onSpiderModelLoad" />
-    <ModelLoader :show_gui="true" :gltf_src="BOOK_MODEL_SRC" @load="onBookModelLoad" />
+    <SceneBasicObject :texture_src="SRC.textures.wood" @load="(obj) => canvas3D.addToScene(obj)" />
+    <ModelLoader :gltf_src="SRC.models.spider" @load="onSpiderModelLoad" />
+    <ModelLoader :gltf_src="SRC.models.book" @load="onBookModelLoad" />
+    <ModelLoader :gltf_src="SRC.models.pc" @load="onPcModelLoad" />
   </template>
-
+  
   <Joystick @keyup="onKeyUp" @keydown="onKeyDown" />
+  <LaptopScreen v-if="is_pc_model_loaded" />
 </template>
 
 <script setup>
@@ -15,21 +17,20 @@
 import { 
   ref,
   onMounted,
-  onUnmounted
+  onUnmounted,
 } from "vue";
 
 import * as THREE from "three";
 import {
+  SRC,
   SPEED,
-  BOOK_MODEL_SRC,
-  SPIDER_MODEL_SRC,
-  WOOD_TEXTURE_SRC,
 } from "../utils/globals.mjs";
 
 import Canvas3D    from "../utils/Canvas3D.mjs";
 
-import ModelLoader      from "@/components/ModelLoader.vue";
+import LaptopScreen     from "./LaptopScreen.vue";
 import Joystick         from "@/components/Joystick.vue";
+import ModelLoader      from "@/components/ModelLoader.vue";
 import SceneBasicObject from "@/components/SceneBasicObject.vue";
 
 // ==============
@@ -43,13 +44,27 @@ let spider_default_animation = undefined;
 let spider_walk_animation    = undefined;
 let clock                    = new THREE.Clock();
 
-const is_canvas_loaded = ref( false );
+const is_canvas_loaded   = ref( false );
+const is_pc_model_loaded = ref( false );
 
 // ==============
 // Functions
 // ==============
+function onPcModelLoad(ev){
+  const pc_model = ev.scene;
+  pc_model.position.x = 0.7;
+  pc_model.position.y = -1.15;
+  pc_model.position.z = 3.2;
+  const updated_pc_model = canvas3D.addHTMLOverlay( pc_model, 'pc_screen' );
+  canvas3D.addToScene( updated_pc_model );
+  setTimeout(() => {
+    is_pc_model_loaded.value = true;
+  }, 1000)
+}
+
 function onBookModelLoad(ev) {
   const book_model = ev.scene;
+  book_model.position.x = 5;
   book_model.position.y = 0.3;
   book_model.position.z = 2.7;
   book_model.rotation.x = 1.6;
