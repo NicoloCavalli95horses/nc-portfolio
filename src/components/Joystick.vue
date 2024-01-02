@@ -85,19 +85,21 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 $base-color: #bbb;
 $active-color: var(--secondary);
+$cursor-size: 40px;
+$wrapper-size: calc( $cursor-size * (1.618 * 1.5));
 .cursor-wrapper {
   position: fixed;
   bottom: 32px;
   right: 32px;
-  width: 130px;
-  height: 130px;
+  width: $wrapper-size;
+  height: $wrapper-size;
   border-radius: 50%;
   border: 1px solid $base-color;
   cursor: pointer;
   touch-action: none;
   .cursor {
-    width: 52px;
-    height: 52px;
+    width: $cursor-size;
+    height: $cursor-size;
     border-radius: 50%;
     position: absolute;
     transform: translate(-50%, -50%) scale(1);

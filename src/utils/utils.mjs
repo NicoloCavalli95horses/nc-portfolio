@@ -15,6 +15,9 @@ export const SRC = Object.freeze({
       pc: `${BASE_MODEL}pc.glb`,
       book: `${BASE_MODEL}book.glb`,
       spider: `${BASE_MODEL}spider.glb`,
+      plant: `${BASE_MODEL}plant.glb`,
+      pencil: `${BASE_MODEL}pencil.glb`,
+      lamp: `${BASE_MODEL}lamp.glb`,
     }
 })
 
@@ -52,4 +55,8 @@ export function mapValue(value, fromMin, fromMax, toMin, toMax) {
   const percentage = (clampedValue - fromMin) / (fromMax - fromMin);
   const mappedValue = toMin + percentage * (toMax - toMin);
   return mappedValue;
+}
+
+export function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

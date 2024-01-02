@@ -4,6 +4,7 @@
     <ModelLoader :gltf_src="SRC.models.spider" @load="onSpiderModelLoad" />
     <ModelLoader :gltf_src="SRC.models.book" @load="onBookModelLoad" />
     <ModelLoader :gltf_src="SRC.models.pc" @load="onPcModelLoad" />
+    <ModelLoader :gltf_src="SRC.models.lamp" @load="onLampModelLoad" />
   </template>
   
   <Joystick @stop="onStopAnimation" @move="onMoveAnimation" />
@@ -23,6 +24,7 @@ import {
 import * as THREE from "three";
 import {
   SRC,
+  randInt,
   // checkDOMUpdate,
 } from "../utils/utils.mjs";
 
@@ -50,6 +52,17 @@ const is_pc_model_loaded = ref( false );
 // ==============
 // Functions
 // ==============
+function onLampModelLoad(ev) {
+  const lamp_model = ev.scene;
+  lamp_model.scale.x = 0.4;
+  lamp_model.scale.y = 0.4;
+  lamp_model.scale.z = 0.4;
+  lamp_model.position.x = 3.15;
+  lamp_model.position.z = 1.95;
+  lamp_model.position.y = 0.2;
+  canvas3D.addToScene( lamp_model );
+}
+
 function onPcModelLoad(ev){
   const DOM_CLASS = 'pc_screen';
   const pc_model = ev.scene;
@@ -79,7 +92,8 @@ function onBookModelLoad(ev) {
 
   for (let i=0; i<20; i++) {
     const b = book_model.clone();
-    b.position.x += (i/4);
+    b.scale.y = randInt(2, 10);
+    b.position.x += i/4;
     canvas3D.addToScene( b );
   }
   canvas3D.addToScene( book_model );
