@@ -71,9 +71,6 @@ export default class Canvas3D {
   initCSSRenderer() {
     this.css2DRenderer = new CSS2DRenderer();
     this.css2DRenderer.setSize(window.innerWidth, window.innerHeight);
-    this.css2DRenderer.domElement.style.position = 'absolute';
-    this.css2DRenderer.domElement.style.top = '0px';
-    this.css2DRenderer.domElement.style.pointerEvents = 'none';
     this.css2DRenderer.domElement.className = 'overlay';
     const app = document.querySelector('#app');
     app.appendChild(this.css2DRenderer.domElement);

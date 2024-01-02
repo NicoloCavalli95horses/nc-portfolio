@@ -97,6 +97,7 @@ $wrapper-size: calc( $cursor-size * (1.618 * 1.5));
   border: 1px solid $base-color;
   cursor: pointer;
   touch-action: none;
+  z-index: 1;
   .cursor {
     width: $cursor-size;
     height: $cursor-size;

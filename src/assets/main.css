@@ -369,10 +369,11 @@ label {
   height: 2.4rem;
 }
 
-.test {
-  z-index: 99;
-  width: 400px;
-  height: 400px;
-  background-color: red;
-  color: white;
+.overlay {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* pointer-events: none;  */
 }
+/* remove pointer-events:none in production mode */

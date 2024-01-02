@@ -18,6 +18,7 @@ export const SRC = Object.freeze({
       plant: `${BASE_MODEL}plant.glb`,
       pencil: `${BASE_MODEL}pencil.glb`,
       lamp: `${BASE_MODEL}lamp.glb`,
+      paper: `${BASE_MODEL}paper.glb`,
     }
 })
 
