@@ -1,6 +1,6 @@
 <template>
   <template v-if="is_canvas_loaded">
-    <SceneBasicObject :texture_src="SRC.textures.wood" @load="(obj) => canvas3D.addToScene(obj)" />
+    <SceneBasicObject :texture_src="SRC.textures.wood" @load="onPlaneLoad" />
     <ModelLoader :gltf_src="SRC.models.spider" @load="onSpiderModelLoad" />
     <ModelLoader :gltf_src="SRC.models.book" @load="onBookModelLoad" />
     <ModelLoader :gltf_src="SRC.models.pc" @load="onPcModelLoad" />
@@ -8,7 +8,9 @@
     <ModelLoader :gltf_src="SRC.models.paper" @load="onPaperModelLoad" />
   </template>
   
-  <Joystick @stop="onStopAnimation" @move="onMoveAnimation" />
+  <!-- Overlays -->
+  <ArrowsJoystick @keydown="onKeyDown" @keyup="onKeyUp" />
+  <WindowEvents @keydown="onKeyDown" @keyup="onKeyUp" />
   <LaptopScreen v-if="is_pc_model_loaded" />
   <Paper v-if="is_paper_loaded" />
 </template>
@@ -30,11 +32,13 @@ import {
   checkDOMUpdate,
 } from "../utils/utils.mjs";
 
-import Canvas3D    from "../utils/Canvas3D.mjs";
+import Canvas3D            from "../utils/Canvas3D.mjs";
+import CharacterController from "../utils/CharacterController.mjs";
 
 import Paper            from "./Paper.vue";
 import LaptopScreen     from "./LaptopScreen.vue";
-import Joystick         from "@/components/Joystick.vue";
+import ArrowsJoystick   from "@/components/ArrowsJoystick.vue";
+import WindowEvents     from "@/components/WindowEvents.vue";
 import ModelLoader      from "@/components/ModelLoader.vue";
 import SceneBasicObject from "@/components/SceneBasicObject.vue";
 
@@ -45,17 +49,36 @@ let canvas3D                 = undefined;
 let mixer                    = undefined;
 let animation_frame          = undefined;
 let spider_model             = undefined;
-let spider_default_animation = undefined;
-let spider_walk_animation    = undefined;
+let spider_controller        = undefined;
 let clock                    = new THREE.Clock();
 
 const is_canvas_loaded   = ref( false );
 const is_pc_model_loaded = ref( false );
 const is_paper_loaded    = ref( false );
+const current_action     = ref( 'spider.default' );
+const key_pressed        = ref( undefined );
 
 // ==============
 // Functions
 // ==============
+function onKeyUp() {
+  key_pressed.value = undefined;
+  current_action.value = 'spider.default';
+}
+
+
+function onPlaneLoad(obj) {
+  obj.receiveShadow = true;
+  canvas3D.addToScene(obj);
+}
+
+
+function onKeyDown(ev) {
+  current_action.value = 'spider.walk';
+  key_pressed.value = ev;
+}
+
+
 function onLampModelLoad(ev) {
   const lamp_model = ev.scene;
   lamp_model.scale.x = 0.4;
@@ -66,6 +89,7 @@ function onLampModelLoad(ev) {
   lamp_model.position.y = 0.2;
   canvas3D.addToScene( lamp_model );
 }
+
 
 function onPaperModelLoad(ev) {
   const DOM_CLASS = 'paper'
@@ -91,6 +115,7 @@ function onPaperModelLoad(ev) {
     callback: (val) => is_paper_loaded.value = val
   });
 }
+
 
 function onPcModelLoad(ev){
   const DOM_CLASS = 'pc_screen';
@@ -128,37 +153,31 @@ function onBookModelLoad(ev) {
   canvas3D.addToScene( book_model );
 }
 
+
 function onSpiderModelLoad(ev) {
   spider_model = ev.scene;
+  const spider_animation = ev.animations;
+  const animation_map = new Map();
+  spider_model.castShadow = true;
   spider_model.position.y = -0.5;
   mixer = new THREE.AnimationMixer(spider_model);
-  spider_walk_animation = mixer.clipAction(ev.animations.find((a) => a.name == "spider.walk"));
-  spider_default_animation = mixer.clipAction(ev.animations.find((a) => a.name == "spider.default"));
-  spider_default_animation.play();
+  spider_animation.forEach(a => {
+    animation_map.set(a.name, mixer.clipAction(a))
+  });
+  const orbit_controls = canvas3D.getOrbitControls();
+  const camera = canvas3D.getCamera();
+  spider_controller = new CharacterController(spider_model, mixer, animation_map, orbit_controls, current_action.value, camera);
   canvas3D.addToScene(spider_model);
 }
 
-function onStopAnimation() {
-  spider_walk_animation.stop();
-  spider_default_animation.play();
-}
-
-function onMoveAnimation(dir) {
-  spider_walk_animation.play();
-  spider_default_animation.stop();
-  const direction_left = (dir.x - 0.5) * 0.01;
-  const direction_top = (dir.y - 0.5) * 0.01;
-  
-  spider_model.position.x -= direction_left;
-  spider_model.position.z -= direction_top;
-  spider_model.rotation.y -= direction_left;
-  canvas3D.lookAt(spider_model.position);
-}
 
 function initLoop() {
   mixer && mixer.update(clock.getDelta());
   if ( spider_model ) {
     canvas3D.lookAt(spider_model.position);
+  }
+  if ( spider_controller ) {
+    spider_controller.update( clock.getDelta(), key_pressed.value);
   }
   canvas3D.update();
   animation_frame = window.requestAnimationFrame(initLoop);
@@ -181,4 +200,3 @@ onUnmounted(() => {
 });
 
 </script>
-../utils/utils.mjs

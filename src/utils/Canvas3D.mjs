@@ -131,6 +131,12 @@ export default class Canvas3D {
   lookAt( object ) {
     this.camera.lookAt( object );
   }
+  getOrbitControls() {
+    return this.controls;
+  }
+  getCamera() {
+    return this.camera;
+  }
   unmount() {
     // Remove the resize event listener
     window.removeEventListener("resize", this.onResize);
