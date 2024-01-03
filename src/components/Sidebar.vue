@@ -16,16 +16,16 @@
 // ==============
 
 // ==============
-// Import
+// Props and emits
 // ==============
 const emit = defineEmits(['close']);
 
 // ==============
-// Import
+// Consts
 // ==============
 
 // ==============
-// Import
+// Functions
 // ==============
 </script>
 

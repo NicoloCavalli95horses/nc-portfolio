@@ -121,3 +121,24 @@ a {
   color: var(--font-light);
   background: var(--primary);
 }
+
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 0.3rem;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--font-dark);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--black);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--black);
+}

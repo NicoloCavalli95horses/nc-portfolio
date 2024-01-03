@@ -10,11 +10,13 @@
       <h2>Projects</h2>
     </template>
     <template #default>
-      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti illum nesciunt praesentium consequuntur. Odit maiores fuga incidunt? Doloribus officia aut blanditiis corrupti labore in incidunt aperiam quia vitae, obcaecati quis!</p>
       <div class="projects top-24">
-        <div class="project" v-for="src,name in projects" :key="src">
-          <a :href="src"><p>{{ name }}</p></a>
-      </div>
+        <div class="project" v-for="(val, key) in projects" :key="key">
+          <a :href="key">
+            <h3>{{ val.title }}</h3>
+            <p>{{ val.description }}</p>
+          </a>
+        </div>
       </div>
     </template>
   </Sidebar>
@@ -24,45 +26,76 @@
 // ==============
 // Import
 // ==============
-import Sidebar from '@/components/Sidebar.vue';
+import Sidebar from "@/components/Sidebar.vue";
 import { ref } from "vue";
 
 // ==============
 // Consts
 // ==============
-const show_sidebar = ref( false );
+const show_sidebar = ref(false);
 const projects = {
-  ['a3 project']: 'https://a3-project.netlify.app/',
-  ['a* pathfinder']: 'https://a3-project.netlify.app/',
-  ['fractal tree']: 'https://fractal-tree-vue.netlify.app/',
-  ['ray casting'] : 'https://ray-casting.netlify.app/',
-  ['three.js journey'] : 'https://threejs-learning.netlify.app/',
-}
-
+  ["https://a3-project.netlify.app/"]: {
+    title: "a3 project",
+    description: "Image recognition through webcam for web accessibility",
+  },
+  ["https://apathfinder.netlify.app/"]: {
+    title: "a* pathfinder",
+    description: "Interactive visualization of the algorithm",
+  },
+  ["https://fractal-tree-vue.netlify.app/"]: {
+    title: "fractal tree",
+    description: "Interactive experiment with recursive components in Vue.js",
+  },
+  ["https://ray-casting.netlify.app/"]: {
+    title: "ray casting",
+    description: "Interactive visualization of the algorithm",
+  },
+  ["https://threejs-learning.netlify.app/"]: {
+    title: "three.js journey",
+    description: "Documentation of learning the three.js library",
+  },
+};
 </script>
 
 <style lang="scss" scoped>
- .wrapper {
+.wrapper {
   cursor: pointer;
- }
- .projects {
-    border: 2px solid blu;
-    width: 100%;
+}
+.projects {
+  border: 2px solid blu;
+  width: 100%;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-gap: 12px;
+  overflow-y: auto;
+  height: calc(100% - 66px);
+  margin-bottom: 66px;
+  .project a {
     display: grid;
-    align-items: center;
-    justify-items: center;
-    grid-template-columns: repeat( auto-fit, minmax(250px, 1fr) );
-    grid-gap: 12px;
-   .project a {
-     display: grid;
-     place-content: center;
-     width: 200px;
-     height: 200px;
-     background-color: #222;
-     border-radius: var(--radius-m);
-     text-transform: uppercase;
-     letter-spacing: 2px;
-   }
- }
- 
+    place-content: center;
+    width: calc(240px - 44px);
+    height: calc(200px - 44px);
+    background-color: #222;
+    border-radius: var(--radius-m);
+    text-align: center;
+    padding: 22px;
+    box-shadow: 1px 2px 4px #111;
+    &:last-of-type {
+      margin-bottom: 12px;
+    }
+    h3 {
+      font-size: 22px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      height: 55px;
+    }
+    p {
+      font-size: 14px;
+      padding-top: 12px;
+    }
+  }
+}
+
 </style>
