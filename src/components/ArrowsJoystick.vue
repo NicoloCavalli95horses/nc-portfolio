@@ -97,15 +97,11 @@ onUnmounted(() => {
 </script>
 <style lang="scss" scoped>
 .keys {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  z-index: 9;
   cursor: pointer;
   .key {
     display: grid;
@@ -113,12 +109,11 @@ onUnmounted(() => {
     width: 46px;
     height: 46px;
     border-radius: 50%;
-    border: 1px solid #eee;
+    border: 1px solid var(--font-light);
     transition-duration: 400ms;
-    color: #eee;
+    color: var(--font-light);
     &.active {
-      background-color: #eee;
-      color: #222;
+      background-color: var(--primary);
       transition-duration: 400ms;
       transform: scale(0.9);
     }

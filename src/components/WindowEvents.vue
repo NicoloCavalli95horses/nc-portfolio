@@ -1,5 +1,5 @@
 <template>
-  <div class="key"><p>{{ key }}</p></div>
+  <div v-if="show_keys" class="key"><p>{{ key }}</p></div>
 </template>
 
 <script setup>
@@ -17,7 +17,8 @@ defineProps({
 })
 
 const emit = defineEmits([
-  'keydown'
+  'keyup',
+  'keydown',
 ]);
 
 

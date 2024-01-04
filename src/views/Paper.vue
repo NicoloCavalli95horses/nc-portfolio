@@ -1,11 +1,11 @@
 <template>
   <teleport to=".paper">
-    <div class="wrapper" @click="show_sidebar = !show_sidebar">
+    <div class="wrapper" @click="show_sidebar = !show_sidebar; emit('show_sidebar', show_sidebar)">
       <h2>Projects</h2>
     </div>
   </teleport>
 
-  <Sidebar v-if="show_sidebar" @close="show_sidebar = false">
+  <Sidebar v-if="show_sidebar" @close="show_sidebar = false; emit('show_sidebar', show_sidebar)">
     <template #title>
       <h2>Projects</h2>
     </template>
@@ -29,6 +29,7 @@
 import Sidebar from "@/components/Sidebar.vue";
 import { ref } from "vue";
 
+const emit = defineEmits(['show_sidebar']);
 // ==============
 // Consts
 // ==============

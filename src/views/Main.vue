@@ -8,11 +8,18 @@
     <ModelLoader :gltf_src="SRC.models.paper" @load="onPaperModelLoad" />
   </template>
   
+  <!-- Aside controls -->
+  <aside v-show="show_aside">
+    <Btn :def="explore_mode" :border="true" :round="true" class="explore-btn" @click="explore_mode = !explore_mode">
+      <svg><use href="#compass-outline"></use></svg>
+    </Btn>
+    <ArrowsJoystick @keydown="onKeyDown" @keyup="onKeyUp" />
+  </aside>
+  
   <!-- Overlays -->
-  <ArrowsJoystick @keydown="onKeyDown" @keyup="onKeyUp" />
-  <WindowEvents @keydown="onKeyDown" @keyup="onKeyUp" />
   <LaptopScreen v-if="is_pc_model_loaded" />
-  <Paper v-if="is_paper_loaded" />
+  <WindowEvents :show_keys="false" @keydown="onKeyDown" @keyup="onKeyUp" />
+  <Paper v-if="is_paper_loaded && !explore_mode" @show_sidebar="show_aside = !show_aside" />
 </template>
 
 <script setup>
@@ -23,6 +30,7 @@ import {
   ref,
   onMounted,
   onUnmounted,
+watch,
 } from "vue";
 
 import * as THREE from "three";
@@ -37,6 +45,7 @@ import CharacterController from "../utils/CharacterController.mjs";
 
 import Paper            from "./Paper.vue";
 import LaptopScreen     from "./LaptopScreen.vue";
+import Btn              from "@/components/Btn.vue";
 import ArrowsJoystick   from "@/components/ArrowsJoystick.vue";
 import WindowEvents     from "@/components/WindowEvents.vue";
 import ModelLoader      from "@/components/ModelLoader.vue";
@@ -57,6 +66,8 @@ const is_pc_model_loaded = ref( false );
 const is_paper_loaded    = ref( false );
 const current_action     = ref( 'spider.default' );
 const key_pressed        = ref( undefined );
+const show_aside         = ref( true );
+const explore_mode       = ref( false );
 
 // ==============
 // Functions
@@ -184,6 +195,17 @@ function initLoop() {
 }
 
 // ==============
+// Watch
+// ==============
+watch( explore_mode, (newVal) => {
+  if (newVal) {
+    document.querySelector('.overlay').style.pointerEvents = 'none';
+  } else {
+    document.querySelector('.overlay').style.pointerEvents = 'auto';
+  }
+})
+
+// ==============
 // Life cycle
 // ==============
 onMounted(() => {
@@ -200,3 +222,17 @@ onUnmounted(() => {
 });
 
 </script>
+
+<style lang="scss" scoped>
+ aside {
+  position: fixed;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  grid-auto-flow: row;
+  grid-gap: 22px;
+  right: 22px;
+  bottom: 22px;
+  z-index: 10;
+}
+</style>

@@ -83,7 +83,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-$base-color: #bbb;
+$base-color: var(--font-light);
 $active-color: var(--secondary);
 $cursor-size: 40px;
 $wrapper-size: calc( $cursor-size * (1.618 * 1.5));
